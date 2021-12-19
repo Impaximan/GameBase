@@ -7,30 +7,36 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Media;
 using System;
 using GameBase.Extensions;
+using GameBase.Objects;
 
 namespace GameBase
 {
     public class Main : Game
     {
         //Graphics
-        public GraphicsDeviceManager _graphics;
-        public SpriteBatch _spriteBatch;
-        public SpriteSortMode _spriteSortMode = SpriteSortMode.FrontToBack;
-        public BlendState _blendState = BlendState.AlphaBlend;
-        public SamplerState _samplerState = null;
-        public DepthStencilState _depthStencilState = DepthStencilState.None;
-        public RasterizerState _rasterizerState = null;
-        public Matrix? _gameViewMatrix = null;
+        public static GraphicsDeviceManager _graphics;
+        public static SpriteBatch _spriteBatch;
+        public static SpriteSortMode _spriteSortMode = SpriteSortMode.FrontToBack;
+        public static BlendState _blendState = BlendState.AlphaBlend;
+        public static SamplerState _samplerState = null;
+        public static DepthStencilState _depthStencilState = DepthStencilState.None;
+        public static RasterizerState _rasterizerState = null;
+        public static Matrix? _gameViewMatrix = null;
 
         //Controls
-        public KeyboardState keyboardstate;
-        public GamePadState gamepadstate;
-        public MouseState mousestate;
-        public Vector2 cursorPosition = Vector2.Zero;
+        public static KeyboardState keyboardstate;
+        public static GamePadState gamepadstate;
+        public static MouseState mousestate;
+        public static Vector2 cursorPosition = Vector2.Zero;
 
         //Info
         public static double _deltaTime = 1f;
         public static int _fps = 144;
+
+        //Object Lists
+        public const int maxPlayerCount = 1;
+        public static List<GameObject> objects = new List<GameObject>();
+        public static List<Player> players = new List<Player>(maxPlayerCount);
 
         public Main()
         {
@@ -68,7 +74,6 @@ namespace GameBase
             keyboardstate = Keyboard.GetState();
             mousestate = Mouse.GetState();
 
-
             base.Update(gameTime);
         }
 
@@ -76,12 +81,19 @@ namespace GameBase
         {
             GraphicsDevice.Clear(Color.Black);
 
-            Vector2 v = new Vector2(1, 1);
-
-
             _spriteBatch.Begin(_spriteSortMode, _blendState, null, _depthStencilState, null, null, _gameViewMatrix);
+            DrawPlayers(gameTime, _spriteBatch, 0f);
             _spriteBatch.End();
+
             base.Draw(gameTime);
+        }
+
+        public void DrawPlayers(GameTime gameTime, SpriteBatch spriteBatch, float layerDepth)
+        {
+            foreach (Player player in players)
+            {
+                player.Draw(spriteBatch);
+            }
         }
     }
 }
