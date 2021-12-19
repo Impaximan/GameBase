@@ -20,6 +20,8 @@ namespace GameBase
         public Vector2 position = Vector2.Zero;
         public Vector2 velocity = Vector2.Zero;
         public int objectsIndex;
+        public bool active = true;
+        int extraUpdates = 0;
 
         public Rectangle GetRect()
         {
@@ -36,12 +38,17 @@ namespace GameBase
             
         }
 
+        public virtual void ConsistentUpdate(GameTime gameTime)
+        {
+
+        }
+
         public virtual void UpdateMovement(GameTime gameTime)
         {
 
         }
 
-        public virtual void Draw(SpriteBatch spriteBatch)
+        public virtual void Draw(GameTime gameTime, SpriteBatch spriteBatch, float layerDepth)
         {
 
         }

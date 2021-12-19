@@ -19,11 +19,6 @@ namespace GameBase.Objects
             base.Update(gameTime);
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
-        {
-            base.Draw(spriteBatch);
-        }
-
         public static Player NewPlayer()
         {
             Player player = new Player();
@@ -37,6 +32,21 @@ namespace GameBase.Objects
             player.playersIndex = index;
 
             return player;
+        }
+
+        public void KillPlayer()
+        {
+            for (int i = objectsIndex; i < Main.objects.Count; i++)
+            {
+                Main.objects[i].objectsIndex--;
+            }
+            Main.objects.RemoveAt(objectsIndex);
+
+            for (int i = playersIndex; i < Main.players.Count; i++)
+            {
+                Main.players[i].playersIndex--;
+            }
+            Main.players.RemoveAt(playersIndex);
         }
     }
 }

@@ -22,6 +22,9 @@ namespace GameBase
         public static DepthStencilState _depthStencilState = DepthStencilState.None;
         public static RasterizerState _rasterizerState = null;
         public static Matrix? _gameViewMatrix = null;
+        public static float screenWidth;
+        public static float screenHeight;
+        public static Vector2 screenPosition;
 
         //Controls
         public static KeyboardState keyboardstate;
@@ -32,11 +35,14 @@ namespace GameBase
         //Info
         public static double _deltaTime = 1f;
         public static int _fps = 144;
+        public const int _consistentUpdates = 60;
 
         //Object Lists
-        public const int maxPlayerCount = 1;
         public static List<GameObject> objects = new List<GameObject>();
-        public static List<Player> players = new List<Player>(maxPlayerCount);
+        public const int maxPlayerCount = 1;
+        public static List<Player> players = new List<Player>();
+        public const int maxProjectileCount = 500;
+        public static List<Projectile> projectiles = new List<Projectile>();
 
         public Main()
         {
@@ -51,9 +57,12 @@ namespace GameBase
             IsFixedTimeStep = true;
             TargetElapsedTime = TimeSpan.FromSeconds((double)(1f / 144f));
             _graphics.PreferredBackBufferWidth = GraphicsDevice.DisplayMode.Width;
+            screenWidth = GraphicsDevice.DisplayMode.Width;
             _graphics.PreferredBackBufferHeight = GraphicsDevice.DisplayMode.Height;
+            screenHeight = GraphicsDevice.DisplayMode.Height;
             _graphics.IsFullScreen = true;
             _graphics.ApplyChanges();
+            timeSinceConsistent = 0f;
         }
 
         protected override void LoadContent()
@@ -62,6 +71,7 @@ namespace GameBase
 
         }
 
+        double timeSinceConsistent = 0f;
         protected override void Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
@@ -74,7 +84,27 @@ namespace GameBase
             keyboardstate = Keyboard.GetState();
             mousestate = Mouse.GetState();
 
+            timeSinceConsistent += _deltaTime;
+            while (timeSinceConsistent >= 1f / (float)_consistentUpdates)
+            {
+                timeSinceConsistent -= 1f / (float)_consistentUpdates;
+                ConsistentUpdate(gameTime);
+            }
+
+            foreach (GameObject gameObject in objects)
+            {
+                gameObject.ConsistentUpdate(gameTime);
+            }
+
             base.Update(gameTime);
+        }
+
+        public void ConsistentUpdate(GameTime gameTime)
+        {
+            foreach (GameObject gameObject in objects)
+            {
+                gameObject.ConsistentUpdate(gameTime);
+            }
         }
 
         protected override void Draw(GameTime gameTime)
@@ -83,6 +113,7 @@ namespace GameBase
 
             _spriteBatch.Begin(_spriteSortMode, _blendState, null, _depthStencilState, null, null, _gameViewMatrix);
             DrawPlayers(gameTime, _spriteBatch, 0f);
+            DrawProjectiles(gameTime, _spriteBatch, -1f);
             _spriteBatch.End();
 
             base.Draw(gameTime);
@@ -92,7 +123,15 @@ namespace GameBase
         {
             foreach (Player player in players)
             {
-                player.Draw(spriteBatch);
+                player.Draw(gameTime, spriteBatch, layerDepth);
+            }
+        }
+
+        public void DrawProjectiles(GameTime gameTime, SpriteBatch spriteBatch, float layerDepth)
+        {
+            foreach (Projectile projectile in projectiles)
+            {
+                projectile.Draw(gameTime, spriteBatch, layerDepth);
             }
         }
     }
