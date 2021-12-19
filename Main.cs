@@ -1,9 +1,12 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Collections.Generic;
+using System.Text;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Media;
 using System;
+using GameBase.Extensions;
 
 namespace GameBase
 {
@@ -72,6 +75,9 @@ namespace GameBase
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
+
+            Vector2 v = new Vector2(1, 1);
+
 
             _spriteBatch.Begin(_spriteSortMode, _blendState, null, _depthStencilState, null, null, _gameViewMatrix);
             _spriteBatch.End();
