@@ -35,5 +35,12 @@ namespace GameBase.Extensions
             rotation = MathHelper.WrapAngle(rotation);
             return rotation.ToRotationVector2(length);
         }
+
+        public static Vector2 Rounded(this Vector2 v1)
+        {
+            Vector2 v2 = v1;
+            v2.Round();
+            return v2;
+        }
     }
 }

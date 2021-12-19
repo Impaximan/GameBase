@@ -43,14 +43,17 @@ namespace GameBase
         public const float physicsBackstepSpace = 0.1f;
 
         //Object Lists
-        public static List<GameObject> objects = new List<GameObject>();
         public const int maxPlayerCount = 1;
-        public static List<Player> players = new List<Player>();
-        public const int maxProjectileCount = 500;
-        public static List<Projectile> projectiles = new List<Projectile>();
+        public static Player[] players = new Player[maxPlayerCount];
+        public const int maxProjectileCount = 750;
+        public static Projectile[] projectiles = new Projectile[maxProjectileCount]; //MAKE THESE ARRAYS PENUMBRAL
+        public const int maxObjectCount = maxPlayerCount + maxProjectileCount;
+        public static GameObject[] objects = new GameObject[maxObjectCount];
 
         //Other
-        public Random random;
+        public static Random random;
+        public static Vector2 mouseScreen;
+        public static Vector2 mouseWorld;
 
         public Main()
         {
@@ -96,6 +99,9 @@ namespace GameBase
             keyboardstate = Keyboard.GetState();
             mousestate = Mouse.GetState();
 
+            mouseScreen = mousestate.Position.ToVector2();
+            mouseWorld = mouseScreen + screenPosition;
+
             timeSinceConsistent += deltaTime;
             while (timeSinceConsistent >= 1f / (float)consistentUpdates)
             {
@@ -105,7 +111,31 @@ namespace GameBase
 
             foreach (GameObject gameObject in objects)
             {
-                gameObject.Update(gameTime);
+                if (gameObject != null)
+                {
+                    if (gameObject.active)
+                    {
+                        gameObject.Update(gameTime);
+                    }
+                }
+            }
+
+            float speed = 200f;
+            if (keyboardstate.IsKeyDown(Keys.D))
+            {
+                screenPosition.X += speed * (float)deltaTime;
+            }
+            if (keyboardstate.IsKeyDown(Keys.A))
+            {
+                screenPosition.X -= speed * (float)deltaTime;
+            }
+            if (keyboardstate.IsKeyDown(Keys.S))
+            {
+                screenPosition.Y += speed * (float)deltaTime;
+            }
+            if (keyboardstate.IsKeyDown(Keys.W))
+            {
+                screenPosition.Y -= speed * (float)deltaTime;
             }
 
             base.Update(gameTime);
@@ -113,13 +143,16 @@ namespace GameBase
 
         public void ConsistentUpdate(GameTime gameTime)
         {
-            Projectile.NewProjectile(new ProjectileType(), new Vector2(screenWidth / 2, screenHeight / 2), new Vector2(random.Next(-50, 50), random.Next(-50, 50)), 0f, AlignmentKey.Pacifist);
-            for (int i = 0; i < objects.Count; i++)
+            Projectile.NewProjectile(new ProjectileType(), mousestate.Position.ToVector2() + screenPosition, new Vector2(random.Next(-200, 200), random.Next(-200, 200)), 0f, AlignmentKey.Pacifist);
+            for (int i = 0; i < objects.Length; i++)
             {
-                if (i < objects.Count)
+                if (i < objects.Length)
                 {
                     GameObject gameObject = objects[i];
-                    gameObject.ConsistentUpdate(gameTime);
+                    if (gameObject != null)
+                    {
+                        gameObject.ConsistentUpdate(gameTime);
+                    }
                 }
                 else
                 {
@@ -142,17 +175,25 @@ namespace GameBase
 
         public void DrawPlayers(GameTime gameTime, SpriteBatch spriteBatch, float layerDepth)
         {
-            foreach (Player player in players)
+            for (int i = 0; i < players.Length; i++)
             {
-                player.Draw(gameTime, spriteBatch, layerDepth);
+                Player player = players[i];
+                if (player != null && player.active)
+                {
+                    player.Draw(gameTime, spriteBatch, layerDepth);
+                }
             }
         }
 
         public void DrawProjectiles(GameTime gameTime, SpriteBatch spriteBatch, float layerDepth)
         {
-            foreach (Projectile projectile in projectiles)
+            for (int i = 0; i < projectiles.Length; i++)
             {
-                projectile.Draw(gameTime, spriteBatch, layerDepth);
+                Projectile projectile = projectiles[i];
+                if (projectile != null && projectile.active)
+                {
+                    projectile.Draw(gameTime, spriteBatch, layerDepth);
+                }
             }
         }
     }

@@ -37,46 +37,52 @@ namespace GameBase.Objects
         public void UpdateMovement(GameTime gameTime)
         {
             position.X += velocity.X * (float)Main.deltaTime;
-            if (collideWithSolids)
+            if (collideWithSolids && velocity != Vector2.Zero)
             {
                 foreach (GameObject gObject in Main.objects)
                 {
-                    if (gObject.solid && gObject.Colliding(this))
+                    if (gObject != null)
                     {
-                        if (velocity.X == 0)
+                        if (gObject.solid && gObject.Colliding(this))
                         {
-
-                        }
-                        else
-                        {
-                            while (gObject.Colliding(this))
+                            if (velocity.X == 0)
                             {
-                                position.X += Main.physicsBackstepSpace * Math.Sign(velocity.X) * -1f;
+
                             }
-                            velocity.X = 0f;
+                            else
+                            {
+                                while (gObject.Colliding(this))
+                                {
+                                    position.X += Main.physicsBackstepSpace * Math.Sign(velocity.X) * -1f;
+                                }
+                                velocity.X = 0f;
+                            }
                         }
                     }
                 }
             }
 
             position.Y += velocity.Y * (float)Main.deltaTime;
-            if (collideWithSolids)
+            if (collideWithSolids && velocity != Vector2.Zero)
             {
                 foreach (GameObject gObject in Main.objects)
                 {
-                    if (gObject.solid && gObject.Colliding(this))
+                    if (gObject != null)
                     {
-                        if (velocity.Y == 0)
+                        if (gObject.solid && gObject.Colliding(this))
                         {
-
-                        }
-                        else
-                        {
-                            while (gObject.Colliding(this))
+                            if (velocity.Y == 0)
                             {
-                                position.Y += Main.physicsBackstepSpace * Math.Sign(velocity.Y) * -1f;
+
                             }
-                            velocity.X = 0f;
+                            else
+                            {
+                                while (gObject.Colliding(this))
+                                {
+                                    position.Y += Main.physicsBackstepSpace * Math.Sign(velocity.Y) * -1f;
+                                }
+                                velocity.X = 0f;
+                            }
                         }
                     }
                 }
@@ -86,7 +92,16 @@ namespace GameBase.Objects
         public static Projectile NewProjectile(ProjectileType type, Vector2 position, Vector2 velocity, float damage, AlignmentKey damageAlignment, GameObject source = null, float knockback = 0f)
         {
             Projectile projectile = new Projectile();
-            int index = Main.objects.Count;
+            int oIndex = 0;
+            while (Main.objects[oIndex] != null)
+            {
+                oIndex++;
+                if (oIndex >= Main.objects.Length)
+                {
+                    return null;
+                }
+            }
+
             projectile.type = type;
             projectile.position = position;
             projectile.velocity = velocity;
@@ -95,17 +110,23 @@ namespace GameBase.Objects
             projectile.source = source;
             projectile.knockback = knockback;
 
-            Main.objects.Add(projectile);
-            projectile.objectsIndex = index;
+            int index = 0;
+            while (Main.projectiles[index] != null)
+            {
+                index++;
+                if (index >= Main.projectiles.Length)
+                {
+                    return null;
+                }
+            }
 
-            index = Main.projectiles.Count;
-            Main.projectiles.Add(projectile);
+            Main.objects[oIndex] = projectile;
+            projectile.objectsIndex = oIndex;
+
+            Main.projectiles[index] = projectile;
             projectile.projectilesIndex = index;
 
             projectile.Initialize();
-
-            Debug.WriteLine("Spawned projectile with display name: " + projectile.displayName);
-            Debug.WriteLine("There is now " + Main.projectiles.Count + " projectile(s) in Main.projectiles");
             return projectile;
         }
 
@@ -199,6 +220,7 @@ namespace GameBase.Objects
 
         public void Initialize()
         {
+            active = true;
             type.InitializeStats(this);
         }
 
@@ -217,17 +239,9 @@ namespace GameBase.Objects
 
         public void KillProjectile()
         {
-            for (int i = objectsIndex; i < Main.objects.Count; i++)
-            {
-                Main.objects[i].objectsIndex--;
-            }
-            Main.objects.RemoveAt(objectsIndex + 1);
-
-            for (int i = projectilesIndex; i < Main.projectiles.Count; i++)
-            {
-                Main.projectiles[i].projectilesIndex--;
-            }
-            Main.projectiles.RemoveAt(projectilesIndex + 1);
+            active = false;
+            Main.projectiles[projectilesIndex] = null;
+            Main.objects[objectsIndex] = null;
         }
     }
 }

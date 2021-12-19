@@ -26,7 +26,8 @@ namespace GameBase.Objects
 
         public virtual void AI(Projectile projectile)
         {
-            if (projectile.timeAlive >= 3f)
+            projectile.velocity *= 0.98f;
+            if (projectile.timeAlive >= 6f)
             {
                 projectile.KillProjectile();
             }

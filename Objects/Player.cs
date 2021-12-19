@@ -22,13 +22,30 @@ namespace GameBase.Objects
         public static Player NewPlayer()
         {
             Player player = new Player();
+            player.active = true;
 
-            int index = Main.objects.Count;
-            Main.objects.Add(player);
+            int index = 0;
+            while (Main.objects[index] != null)
+            {
+                index++;
+                if (index >= Main.objects.Length)
+                {
+                    return null;
+                }
+            }
+            Main.objects[index] = player;
             player.objectsIndex = index;
 
-            index = Main.players.Count;
-            Main.players.Add(player);
+            index = 0;
+            while (Main.players[index] != null)
+            {
+                index++;
+                if (index >= Main.players.Length)
+                {
+                    return null;
+                }
+            }
+            Main.players[index] = player;
             player.playersIndex = index;
 
             return player;
@@ -36,17 +53,9 @@ namespace GameBase.Objects
 
         public void KillPlayer()
         {
-            for (int i = objectsIndex; i < Main.objects.Count; i++)
-            {
-                Main.objects[i].objectsIndex--;
-            }
-            Main.objects.RemoveAt(objectsIndex + 1);
-
-            for (int i = playersIndex; i < Main.players.Count; i++)
-            {
-                Main.players[i].playersIndex--;
-            }
-            Main.players.RemoveAt(playersIndex + 1);
+            active = false;
+            Main.players[playersIndex] = null;
+            Main.objects[objectsIndex] = null;
         }
     }
 }

@@ -21,7 +21,7 @@ namespace GameBase
         public Vector2 position = Vector2.Zero;
         public Vector2 velocity = Vector2.Zero;
         public int objectsIndex;
-        public bool active = true;
+        public bool active = false;
         public int extraUpdates = 0;
         public float rotation;
         public float drawScale = 1f;
