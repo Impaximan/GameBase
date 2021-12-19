@@ -40,13 +40,13 @@ namespace GameBase.Objects
             {
                 Main.objects[i].objectsIndex--;
             }
-            Main.objects.RemoveAt(objectsIndex);
+            Main.objects.RemoveAt(objectsIndex + 1);
 
             for (int i = playersIndex; i < Main.players.Count; i++)
             {
                 Main.players[i].playersIndex--;
             }
-            Main.players.RemoveAt(playersIndex);
+            Main.players.RemoveAt(playersIndex + 1);
         }
     }
 }

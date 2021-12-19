@@ -10,7 +10,7 @@ using GameBase.Extensions;
 
 namespace GameBase.Utils
 {
-	public class BezierCurve // Bezier Curve Method, made by Seraph#0531 on discord. This is being used with permission.
+	public class BezierCurve // Bezier Curve System, made by Seraph#0531 on discord. This is being used with permission.
 	{
 		public List<Vector2> Controls; // the points used for the "verticies" of the curver
 		public BezierCurve(params Vector2[] controlPoints)
