@@ -21,7 +21,7 @@ namespace GameBase.Extensions
         public static Vector2 ToRotationVector2(this float n1, float length = 1)
         {
             Vector2 North = new Vector2(0, -1);
-            var RotationMatrix = Matrix.CreateRotationZ((float)n1);
+            var RotationMatrix = Matrix.CreateRotationZ((float)n1 + MathHelper.ToRadians(90));
             return Vector2.Transform(North, RotationMatrix) * length;
         }
 

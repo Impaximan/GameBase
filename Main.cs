@@ -17,7 +17,7 @@ namespace GameBase
         //Graphics
         public static GraphicsDeviceManager graphics;
         public static SpriteBatch spriteBatch;
-        public static SpriteSortMode spriteSortMode = SpriteSortMode.FrontToBack;
+        public static SpriteSortMode spriteSortMode = SpriteSortMode.Deferred;
         public static BlendState blendState = BlendState.AlphaBlend;
         public static SamplerState samplerState = null;
         public static DepthStencilState depthStencilState = DepthStencilState.None;
@@ -33,6 +33,11 @@ namespace GameBase
         public static GamePadState gamepadstate;
         public static MouseState mousestate;
         public static Vector2 cursorPosition = Vector2.Zero;
+        public static Keys keyLeft = Keys.A;
+        public static Keys keyRight = Keys.D;
+        public static Keys keyUp = Keys.W;
+        public static Keys keyDown = Keys.S;
+        public static Keys keyJump = Keys.Space;
 
         //Info
         public static double deltaTime = 1f;
@@ -46,8 +51,10 @@ namespace GameBase
         public const int maxPlayerCount = 1;
         public static Player[] players = new Player[maxPlayerCount];
         public const int maxProjectileCount = 750;
-        public static Projectile[] projectiles = new Projectile[maxProjectileCount]; //MAKE THESE ARRAYS PENUMBRAL
-        public const int maxObjectCount = maxPlayerCount + maxProjectileCount;
+        public static Projectile[] projectiles = new Projectile[maxProjectileCount];
+        public const int maxPlatformCount = 1000;
+        public static Platform[] platforms = new Platform[maxPlatformCount];
+        public const int maxObjectCount = maxPlayerCount + maxProjectileCount + maxPlatformCount;
         public static GameObject[] objects = new GameObject[maxObjectCount];
 
         //Other
@@ -91,13 +98,17 @@ namespace GameBase
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-
             deltaTime = gameTime.ElapsedGameTime.TotalSeconds;
             fps = (int)(1f / (float)gameTime.ElapsedGameTime.TotalSeconds);
 
             gamepadstate = GamePad.GetState(PlayerIndex.One);
             keyboardstate = Keyboard.GetState();
             mousestate = Mouse.GetState();
+
+            if (players[0] == null)
+            {
+                Player.NewPlayer();
+            }
 
             mouseScreen = mousestate.Position.ToVector2();
             mouseWorld = mouseScreen + screenPosition;
@@ -109,8 +120,9 @@ namespace GameBase
                 ConsistentUpdate(gameTime);
             }
 
-            foreach (GameObject gameObject in objects)
+            for (int i = 0; i < objects.Length; i++)
             {
+                GameObject gameObject = objects[i];
                 if (gameObject != null)
                 {
                     if (gameObject.active)
@@ -120,30 +132,11 @@ namespace GameBase
                 }
             }
 
-            float speed = 200f;
-            if (keyboardstate.IsKeyDown(Keys.D))
-            {
-                screenPosition.X += speed * (float)deltaTime;
-            }
-            if (keyboardstate.IsKeyDown(Keys.A))
-            {
-                screenPosition.X -= speed * (float)deltaTime;
-            }
-            if (keyboardstate.IsKeyDown(Keys.S))
-            {
-                screenPosition.Y += speed * (float)deltaTime;
-            }
-            if (keyboardstate.IsKeyDown(Keys.W))
-            {
-                screenPosition.Y -= speed * (float)deltaTime;
-            }
-
             base.Update(gameTime);
         }
 
         public void ConsistentUpdate(GameTime gameTime)
         {
-            Projectile.NewProjectile(new ProjectileType(), mousestate.Position.ToVector2() + screenPosition, new Vector2(random.Next(-200, 200), random.Next(-200, 200)), 0f, AlignmentKey.Pacifist);
             for (int i = 0; i < objects.Length; i++)
             {
                 if (i < objects.Length)
@@ -167,6 +160,7 @@ namespace GameBase
 
             spriteBatch.Begin(spriteSortMode, blendState, null, depthStencilState, null, null, gameViewMatrix);
             DrawPlayers(gameTime, spriteBatch, 0f);
+            DrawPlatforms(gameTime, spriteBatch, 0f);
             DrawProjectiles(gameTime, spriteBatch, 0f);
             spriteBatch.End();
 
@@ -181,6 +175,18 @@ namespace GameBase
                 if (player != null && player.active)
                 {
                     player.Draw(gameTime, spriteBatch, layerDepth);
+                }
+            }
+        }
+
+        public void DrawPlatforms(GameTime gameTime, SpriteBatch spriteBatch, float layerDepth)
+        {
+            for (int i = 0; i < platforms.Length; i++)
+            {
+                Platform platform = platforms[i];
+                if (platform != null && platform.active)
+                {
+                    platform.Draw(gameTime, spriteBatch, layerDepth);
                 }
             }
         }

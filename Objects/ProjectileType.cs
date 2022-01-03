@@ -15,8 +15,7 @@ namespace GameBase.Objects
     {
         public virtual void InitializeStats(Projectile projectile)
         {
-            projectile.texture = Main.Glow_2;
-            projectile.drawScale = 0.01f;
+
         }
 
         public virtual bool PreAI(Projectile projectile)
@@ -26,11 +25,6 @@ namespace GameBase.Objects
 
         public virtual void AI(Projectile projectile)
         {
-            projectile.velocity *= 0.98f;
-            if (projectile.timeAlive >= 6f)
-            {
-                projectile.KillProjectile();
-            }
         }
 
         public virtual void PostAI(Projectile projectile, bool preAI)
@@ -40,7 +34,7 @@ namespace GameBase.Objects
 
         public virtual void Draw(GameTime gameTime, SpriteBatch spriteBatch, float layerDepth, Projectile projectile)
         {
-            spriteBatch.Draw(projectile.texture, projectile.position - Main.screenPosition, null, Color.White, projectile.rotation, Vector2.Zero, projectile.drawScale, SpriteEffects.None, layerDepth);
+            spriteBatch.Draw(projectile.texture, projectile.Center() - Main.screenPosition, null, Color.White, projectile.rotation, projectile.texture.Size() / 2, projectile.drawScale, SpriteEffects.None, layerDepth);
         }
     }
 }

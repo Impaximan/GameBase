@@ -36,11 +36,12 @@ namespace GameBase.Objects
 
         public void UpdateMovement(GameTime gameTime)
         {
-            position.X += velocity.X * (float)Main.deltaTime;
+            position.X += velocity.X * (float)Main.deltaTime * Main.consistentUpdates;
             if (collideWithSolids && velocity != Vector2.Zero)
             {
-                foreach (GameObject gObject in Main.objects)
+                for (int i = 0; i < Main.objects.Length; i++)
                 {
+                    GameObject gObject = Main.objects[i];
                     if (gObject != null)
                     {
                         if (gObject.solid && gObject.Colliding(this))
@@ -62,11 +63,12 @@ namespace GameBase.Objects
                 }
             }
 
-            position.Y += velocity.Y * (float)Main.deltaTime;
+            position.Y += velocity.Y * (float)Main.deltaTime * Main.consistentUpdates;
             if (collideWithSolids && velocity != Vector2.Zero)
             {
-                foreach (GameObject gObject in Main.objects)
+                for (int i = 0; i < Main.objects.Length; i++)
                 {
+                    GameObject gObject = Main.objects[i];
                     if (gObject != null)
                     {
                         if (gObject.solid && gObject.Colliding(this))
@@ -81,7 +83,7 @@ namespace GameBase.Objects
                                 {
                                     position.Y += Main.physicsBackstepSpace * Math.Sign(velocity.Y) * -1f;
                                 }
-                                velocity.X = 0f;
+                                velocity.Y = 0f;
                             }
                         }
                     }
@@ -136,12 +138,17 @@ namespace GameBase.Objects
             float distance = -1f;
 
             Projectile proj = new Projectile();
-            foreach (Projectile projectile in Main.projectiles)
+            for (int i = 0; i < Main.projectiles.Length; i++)
             {
-                if (projectile.Distance(position) < distance || distance == -1f)
+                Projectile projectile = Main.projectiles[i];
+                if (projectile != null && projectile.active)
                 {
-                    foundSomething = true;
-                    distance = projectile.Distance(position);
+                    if (projectile.Distance(position) < distance || distance == -1f)
+                    {
+                        foundSomething = true;
+                        distance = projectile.Distance(position);
+                        proj = projectile;
+                    }
                 }
             }
 
@@ -158,12 +165,17 @@ namespace GameBase.Objects
             float distance = -1f;
 
             Projectile proj = new Projectile();
-            foreach (Projectile projectile in Main.projectiles)
+            for (int i = 0; i < Main.projectiles.Length; i++)
             {
-                if ((projectile.Distance(position) <= distance || distance == -1f) && projectile.damageAlignment == alignment)
+                Projectile projectile = Main.projectiles[i];
+                if (projectile != null && projectile.active)
                 {
-                    foundSomething = true;
-                    distance = projectile.Distance(position);
+                    if ((projectile.Distance(position) <= distance || distance == -1f) && projectile.damageAlignment == alignment)
+                    {
+                        foundSomething = true;
+                        distance = projectile.Distance(position);
+                        proj = projectile;
+                    }
                 }
             }
 
@@ -180,12 +192,17 @@ namespace GameBase.Objects
             float distance = maxDistance;
 
             Projectile proj = new Projectile();
-            foreach (Projectile projectile in Main.projectiles)
+            for (int i = 0; i < Main.projectiles.Length; i++)
             {
-                if (projectile.Distance(position) <= distance)
+                Projectile projectile = Main.projectiles[i];
+                if (projectile != null && projectile.active)
                 {
-                    foundSomething = true;
-                    distance = projectile.Distance(position);
+                    if (projectile.Distance(position) <= distance)
+                    {
+                        foundSomething = true;
+                        distance = projectile.Distance(position);
+                        proj = projectile;
+                    }
                 }
             }
 
@@ -202,12 +219,233 @@ namespace GameBase.Objects
             float distance = maxDistance;
 
             Projectile proj = new Projectile();
-            foreach (Projectile projectile in Main.projectiles)
+            for (int i = 0; i < Main.projectiles.Length; i++)
             {
-                if ((projectile.Distance(position) <= distance) && projectile.damageAlignment == alignment)
+                Projectile projectile = Main.projectiles[i];
+                if (projectile != null && projectile.active)
                 {
-                    foundSomething = true;
-                    distance = projectile.Distance(position);
+                    if ((projectile.Distance(position) <= distance) && projectile.damageAlignment == alignment)
+                    {
+                        foundSomething = true;
+                        distance = projectile.Distance(position);
+                        proj = projectile;
+                    }
+                }
+            }
+
+            if (foundSomething)
+            {
+                return proj;
+            }
+            return null;
+        }
+
+        public static Projectile FindClosest(Projectile otherThan, Vector2 position)
+        {
+            bool foundSomething = false;
+            float distance = -1f;
+
+            Projectile proj = new Projectile();
+            for (int i = 0; i < Main.projectiles.Length; i++)
+            {
+                Projectile projectile = Main.projectiles[i];
+                if (projectile != null && projectile.active)
+                {
+                    if ((projectile.Distance(position) < distance || distance == -1f) && projectile != otherThan)
+                    {
+                        foundSomething = true;
+                        distance = projectile.Distance(position);
+                        proj = projectile;
+                    }
+                }
+            }
+
+            if (foundSomething)
+            {
+                return proj;
+            }
+            return null;
+        }
+
+        public static Projectile FindClosest(Projectile otherThan, Vector2 position, AlignmentKey alignment)
+        {
+            bool foundSomething = false;
+            float distance = -1f;
+
+            Projectile proj = new Projectile();
+            for (int i = 0; i < Main.projectiles.Length; i++)
+            {
+                Projectile projectile = Main.projectiles[i];
+                if (projectile != null && projectile.active)
+                {
+                    if ((projectile.Distance(position) <= distance || distance == -1f) && projectile.damageAlignment == alignment && projectile != otherThan)
+                    {
+                        foundSomething = true;
+                        distance = projectile.Distance(position);
+                        proj = projectile;
+                    }
+                }
+            }
+
+            if (foundSomething)
+            {
+                return proj;
+            }
+            return null;
+        }
+
+        public static Projectile FindClosest(Projectile otherThan, Vector2 position, float maxDistance)
+        {
+            bool foundSomething = false;
+            float distance = maxDistance;
+
+            Projectile proj = new Projectile();
+            for (int i = 0; i < Main.projectiles.Length; i++)
+            {
+                Projectile projectile = Main.projectiles[i];
+                if (projectile != null && projectile.active)
+                {
+                    if (projectile.Distance(position) <= distance && projectile != otherThan)
+                    {
+                        foundSomething = true;
+                        distance = projectile.Distance(position);
+                        proj = projectile;
+                    }
+                }
+            }
+
+            if (foundSomething)
+            {
+                return proj;
+            }
+            return null;
+        }
+
+        public static Projectile FindClosest(Projectile otherThan, Vector2 position, float maxDistance, AlignmentKey alignment)
+        {
+            bool foundSomething = false;
+            float distance = maxDistance;
+
+            Projectile proj = new Projectile();
+            for (int i = 0; i < Main.projectiles.Length; i++)
+            {
+                Projectile projectile = Main.projectiles[i];
+                if (projectile != null && projectile.active)
+                {
+                    if ((projectile.Distance(position) <= distance) && projectile.damageAlignment == alignment && projectile != otherThan)
+                    {
+                        foundSomething = true;
+                        distance = projectile.Distance(position);
+                        proj = projectile;
+                    }
+                }
+            }
+
+            if (foundSomething)
+            {
+                return proj;
+            }
+            return null;
+        }
+
+        public static Projectile FindClosest(List<Projectile> otherThan, Vector2 position)
+        {
+            bool foundSomething = false;
+            float distance = -1f;
+
+            Projectile proj = new Projectile();
+            for (int i = 0; i < Main.projectiles.Length; i++)
+            {
+                Projectile projectile = Main.projectiles[i];
+                if (projectile != null && projectile.active)
+                {
+                    if ((projectile.Distance(position) < distance || distance == -1f) && !otherThan.Contains(projectile))
+                    {
+                        foundSomething = true;
+                        distance = projectile.Distance(position);
+                        proj = projectile;
+                    }
+                }
+            }
+
+            if (foundSomething)
+            {
+                return proj;
+            }
+            return null;
+        }
+
+        public static Projectile FindClosest(List<Projectile> otherThan, Vector2 position, AlignmentKey alignment)
+        {
+            bool foundSomething = false;
+            float distance = -1f;
+
+            Projectile proj = new Projectile();
+            for (int i = 0; i < Main.projectiles.Length; i++)
+            {
+                Projectile projectile = Main.projectiles[i];
+                if (projectile != null && projectile.active)
+                {
+                    if ((projectile.Distance(position) <= distance || distance == -1f) && projectile.damageAlignment == alignment && !otherThan.Contains(projectile))
+                    {
+                        foundSomething = true;
+                        distance = projectile.Distance(position);
+                        proj = projectile;
+                    }
+                }
+            }
+
+            if (foundSomething)
+            {
+                return proj;
+            }
+            return null;
+        }
+
+        public static Projectile FindClosest(List<Projectile> otherThan, Vector2 position, float maxDistance)
+        {
+            bool foundSomething = false;
+            float distance = maxDistance;
+
+            Projectile proj = new Projectile();
+            for (int i = 0; i < Main.projectiles.Length; i++)
+            {
+                Projectile projectile = Main.projectiles[i];
+                if (projectile != null && projectile.active)
+                {
+                    if (projectile.Distance(position) <= distance && !otherThan.Contains(projectile))
+                    {
+                        foundSomething = true;
+                        distance = projectile.Distance(position);
+                        proj = projectile;
+                    }
+                }
+            }
+
+            if (foundSomething)
+            {
+                return proj;
+            }
+            return null;
+        }
+
+        public static Projectile FindClosest(List<Projectile> otherThan, Vector2 position, float maxDistance, AlignmentKey alignment)
+        {
+            bool foundSomething = false;
+            float distance = maxDistance;
+
+            Projectile proj = new Projectile();
+            for (int i = 0; i < Main.projectiles.Length; i++)
+            {
+                Projectile projectile = Main.projectiles[i];
+                if (projectile != null && projectile.active)
+                {
+                    if ((projectile.Distance(position) <= distance) && projectile.damageAlignment == alignment && !otherThan.Contains(projectile))
+                    {
+                        foundSomething = true;
+                        distance = projectile.Distance(position);
+                        proj = projectile;
+                    }
                 }
             }
 
